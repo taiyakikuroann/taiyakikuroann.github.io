@@ -1,0 +1,145 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const allBlogPosts = await getCollection('blog', ({ data }) => !data.draft);
+const sortedPosts = allBlogPosts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+};
+---
+
+<Layout title="Blog | kuroann.memo" description="taiyakikuroann's technical blog and daily logs.">
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title font-heading"><span class="gradient-text">Blog</span></h1>
+      <p class="page-description">日々の開発での気づき、学習ログ、あるいは技術的な所感を綴るブログです。</p>
+    </div>
+
+    <div class="blog-list">
+      {sortedPosts.length > 0 ? (
+        sortedPosts.map((post) => (
+          <article class="blog-item glass-card">
+            <div class="item-meta">
+              <time class="pub-date" datetime={post.data.pubDate.toISOString()}>
+                {formatDate(post.data.pubDate)}
+              </time>
+              <div class="item-tags">
+                {post.data.tags.map((tag) => (
+                  <span class="badge">#{tag}</span>
+                ))}
+              </div>
+            </div>
+            
+            <h2 class="item-title font-heading">
+              <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+            </h2>
+            
+            <p class="item-description">{post.data.description}</p>
+            
+            <a href={`/blog/${post.slug}`} class="read-more">
+              Read Article &rarr;
+            </a>
+          </article>
+        ))
+      ) : (
+        <div class="no-posts">
+          <p>まだ記事が投稿されていません。</p>
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .page-header {
+    margin-bottom: 40px;
+    border-left: 4px solid var(--accent-purple);
+    padding-left: 20px;
+  }
+
+  .page-title {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+  }
+
+  .page-description {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+
+  .blog-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .blog-item {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 30px;
+  }
+
+  .item-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .pub-date {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .item-tags {
+    display: flex;
+    gap: 8px;
+  }
+
+  .item-title {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+  }
+
+  .item-title a:hover {
+    color: var(--accent-purple);
+  }
+
+  .item-description {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  .read-more {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    align-self: flex-start;
+    transition: var(--transition-smooth);
+  }
+
+  .read-more:hover {
+    color: var(--text-primary);
+    transform: translateX(6px);
+  }
+
+  .no-posts {
+    text-align: center;
+    padding: 60px 20px;
+    border: 1px dashed var(--border-muted);
+    border-radius: 16px;
+    color: var(--text-muted);
+  }
+</style>

@@ -1,0 +1,126 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const blogPosts = await getCollection('blog', ({ data }) => !data.draft);
+  return blogPosts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+};
+---
+
+<Layout title={`${post.data.title} | Blog`} description={post.data.description}>
+  <article class="blog-post container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a> &gt; <a href="/blog">Blog</a> &gt; <span>{post.data.title}</span>
+    </nav>
+
+    <!-- Header info -->
+    <header class="post-header">
+      <div class="post-meta">
+        <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+        {post.data.updatedDate && (
+          <span class="updated-date">（更新日: {formatDate(post.data.updatedDate)}）</span>
+        )}
+      </div>
+      
+      <h1 class="post-title font-heading">{post.data.title}</h1>
+      
+      <div class="post-tags">
+        {post.data.tags.map((tag) => (
+          <span class="badge">#{tag}</span>
+        ))}
+      </div>
+    </header>
+
+    <!-- Markdown Content -->
+    <div class="post-content glass-card prose">
+      <Content />
+    </div>
+
+    <!-- Navigation Footer -->
+    <footer class="post-footer">
+      <a href="/blog" class="back-link">&larr; Back to Blog List</a>
+    </footer>
+  </article>
+</Layout>
+
+<style>
+  .breadcrumb {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .breadcrumb a {
+    color: var(--accent-blue);
+  }
+
+  .breadcrumb a:hover {
+    color: var(--text-primary);
+  }
+
+  .post-header {
+    margin-bottom: 32px;
+  }
+
+  .post-meta {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+
+  .post-title {
+    font-size: 2.2rem;
+    line-height: 1.3;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+  }
+
+  .post-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .post-content {
+    padding: 30px;
+    margin-bottom: 40px;
+  }
+
+  @media (min-width: 768px) {
+    .post-content {
+      padding: 40px;
+    }
+  }
+
+  .post-footer {
+    border-top: 1px solid var(--border-muted);
+    padding-top: 24px;
+  }
+
+  .back-link {
+    font-weight: 600;
+    color: var(--accent-blue);
+  }
+
+  .back-link:hover {
+    color: var(--text-primary);
+    transform: translateX(-4px);
+  }
+</style>

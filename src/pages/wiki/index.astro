@@ -1,0 +1,174 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const allWikiPosts = await getCollection('wiki', ({ data }) => !data.draft);
+
+// Group by category
+const categorizedWiki: Record<string, typeof allWikiPosts> = {};
+allWikiPosts.forEach((post) => {
+  const cat = post.data.category || 'Other';
+  if (!categorizedWiki[cat]) {
+    categorizedWiki[cat] = [];
+  }
+  categorizedWiki[cat].push(post);
+});
+
+// Sort posts inside categories by updatedDate desc
+Object.keys(categorizedWiki).forEach((cat) => {
+  categorizedWiki[cat].sort(
+    (a, b) => b.data.updatedDate.valueOf() - a.data.updatedDate.valueOf()
+  );
+});
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+};
+---
+
+<Layout title="Wiki | kuroann.memo" description="taiyakikuroann's technical cheat sheets, references, and memos.">
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title font-heading"><span class="gradient-text">Technical Wiki</span></h1>
+      <p class="page-description">開発で得た知見や設定コマンドを、カテゴリーごとにまとめた技術備忘録です。</p>
+    </div>
+
+    {Object.keys(categorizedWiki).length > 0 ? (
+      <div class="categories-grid">
+        {Object.entries(categorizedWiki).map(([category, posts]) => (
+          <section class="category-section glass-card">
+            <h2 class="category-title font-heading">
+              <span class="category-icon">📁</span> {category}
+              <span class="count-badge">{posts.length}</span>
+            </h2>
+            
+            <ul class="wiki-links">
+              {posts.map((post) => (
+                <li class="wiki-link-item">
+                  <a href={`/wiki/${post.slug}`} class="wiki-link">
+                    <span class="wiki-item-title">{post.data.title}</span>
+                  </a>
+                  <div class="wiki-item-meta">
+                    <time datetime={post.data.updatedDate.toISOString()}>
+                      {formatDate(post.data.updatedDate)}
+                    </time>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    ) : (
+      <div class="no-content">
+        <p>Wiki記事がありません。</p>
+      </div>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .page-header {
+    margin-bottom: 40px;
+    border-left: 4px solid var(--accent-blue);
+    padding-left: 20px;
+  }
+
+  .page-title {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+  }
+
+  .page-description {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+
+  .categories-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  @media (min-width: 768px) {
+    .categories-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .category-section {
+    padding: 24px;
+    height: fit-content;
+  }
+
+  .category-title {
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-muted);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .category-icon {
+    font-size: 1.2rem;
+  }
+
+  .count-badge {
+    font-size: 0.8rem;
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-left: auto;
+    font-weight: 600;
+  }
+
+  .wiki-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .wiki-link-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+  }
+
+  .wiki-link {
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: var(--transition-smooth);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%;
+  }
+
+  .wiki-link:hover {
+    color: var(--accent-blue);
+    transform: translateX(3px);
+  }
+
+  .wiki-item-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .no-content {
+    text-align: center;
+    padding: 60px;
+    border: 1px dashed var(--border-muted);
+    border-radius: 16px;
+    color: var(--text-muted);
+  }
+</style>

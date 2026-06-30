@@ -1,0 +1,308 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+// Fetch collections and sort
+const allBlogPosts = await getCollection('blog', ({ data }) => !data.draft);
+const latestBlog = allBlogPosts
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 2);
+
+const allWikiPosts = await getCollection('wiki', ({ data }) => !data.draft);
+const latestWiki = allWikiPosts
+  .sort((a, b) => b.data.updatedDate.valueOf() - a.data.updatedDate.valueOf())
+  .slice(0, 3);
+
+// Format Date utility
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+};
+---
+
+<Layout title="Home | kuroann.memo">
+  <div class="container index-grid">
+    
+    <!-- Hero / Profile Section -->
+    <section class="hero-section glass-card">
+      <div class="profile-header">
+        <div class="avatar">
+          <span>🐳</span>
+        </div>
+        <div class="profile-info">
+          <h1 class="font-heading">taiyakikuroann</h1>
+          <p class="role gradient-text">SRE & Server-Side Engineer</p>
+        </div>
+      </div>
+      
+      <div class="profile-bio">
+        <p>
+          普段はSREやサーバーサイドエンジニア寄りの開発・運用を行っています。最近は主に **GCP**, **Kubernetes (k8s)**, **Python**, **データ活用・データパイプライン** 周りの技術スタックを触っています。フロントエンド技術（Astro / CSS）は現在勉強中で、そのアウトプットや学習備忘録としてこのサイトを構築しました。
+        </p>
+      </div>
+
+      <div class="skills-section">
+        <h2 class="sub-heading font-heading">Core Tech Stack & Learning</h2>
+        <div class="skills-list">
+          <span class="badge">Google Cloud (GCP)</span>
+          <span class="badge">Kubernetes (k8s)</span>
+          <span class="badge">Python</span>
+          <span class="badge">SRE / IaC</span>
+          <span class="badge">Astro (Learning)</span>
+          <span class="badge">Vanilla CSS</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content Sections Wrapper -->
+    <div class="content-columns">
+      
+      <!-- Recent Blog Section -->
+      <section class="recent-section">
+        <div class="section-title-wrap">
+          <h2 class="section-title font-heading"><span class="section-icon">✍️</span>Recent Blog</h2>
+          <a href="/blog" class="view-all">View All &rarr;</a>
+        </div>
+        
+        <div class="cards-list">
+          {latestBlog.length > 0 ? (
+            latestBlog.map((post) => (
+              <a href={`/blog/${post.slug}`} class="glass-card content-card">
+                <div class="card-meta">
+                  <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+                  <div class="card-tags">
+                    {post.data.tags.slice(0, 2).map(tag => (
+                      <span class="card-tag">#{tag}</span>
+                    ))}
+                  </div>
+                </div>
+                <h3 class="card-title font-heading">{post.data.title}</h3>
+                <p class="card-desc">{post.data.description}</p>
+              </a>
+            ))
+          ) : (
+            <p class="no-content">投稿されたブログはありません。</p>
+          )}
+        </div>
+      </section>
+
+      <!-- Recent Wiki Section -->
+      <section class="recent-section">
+        <div class="section-title-wrap">
+          <h2 class="section-title font-heading"><span class="section-icon">📚</span>Recent Wiki</h2>
+          <a href="/wiki" class="view-all">View All &rarr;</a>
+        </div>
+        
+        <div class="cards-list">
+          {latestWiki.length > 0 ? (
+            latestWiki.map((wiki) => (
+              <a href={`/wiki/${wiki.slug}`} class="glass-card content-card">
+                <div class="card-meta">
+                  <span class="wiki-category">{wiki.data.category}</span>
+                  <time datetime={wiki.data.updatedDate.toISOString()}>Update: {formatDate(wiki.data.updatedDate)}</time>
+                </div>
+                <h3 class="card-title font-heading">{wiki.data.title}</h3>
+                <p class="card-desc">{wiki.data.description}</p>
+                <div class="card-tags">
+                  {wiki.data.tags.slice(0, 2).map(tag => (
+                    <span class="card-tag">#{tag}</span>
+                  ))}
+                </div>
+              </a>
+            ))
+          ) : (
+            <p class="no-content">作成されたWiki記事はありません。</p>
+          )}
+        </div>
+      </section>
+      
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .index-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  /* Profile Section */
+  .hero-section {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .avatar {
+    width: 64px;
+    height: 64px;
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border-glow);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    box-shadow: 0 0 15px rgba(263, 90, 70, 0.2);
+  }
+
+  .profile-info h1 {
+    font-size: 1.8rem;
+    letter-spacing: -0.01em;
+  }
+
+  .role {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .profile-bio {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .sub-heading {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+  }
+
+  .skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* Content columns (Grid for Blog & Wiki lists) */
+  .content-columns {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  @media (min-width: 768px) {
+    .content-columns {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .recent-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .section-title-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-muted);
+    padding-bottom: 10px;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-icon {
+    font-size: 1.2rem;
+  }
+
+  .view-all {
+    font-size: 0.85rem;
+    color: var(--accent-blue);
+    font-weight: 500;
+  }
+
+  .view-all:hover {
+    color: var(--text-primary);
+    transform: translateX(4px);
+  }
+
+  .cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Card custom styling */
+  .content-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    text-decoration: none;
+    height: 100%;
+  }
+
+  .card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .card-title {
+    font-size: 1.15rem;
+    color: var(--text-primary);
+    transition: var(--transition-smooth);
+  }
+
+  .content-card:hover .card-title {
+    color: var(--accent-purple);
+  }
+
+  .card-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .card-tag {
+    font-size: 0.75rem;
+    color: var(--accent-blue);
+  }
+
+  .wiki-category {
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .no-content {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 24px;
+    border: 1px dashed var(--border-muted);
+    border-radius: 12px;
+  }
+</style>
