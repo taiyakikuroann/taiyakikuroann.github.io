@@ -2,7 +2,7 @@
 title: "GitHub CLI (gh) コマンドチートシート"
 description: "日常開発でよく利用するGitHub CLI (ghコマンド) の主要機能と使い方まとめです。"
 category: "Git"
-updatedDate: 2026-06-30
+updatedDate: 2026-07-01
 tags: ["Git", "GitHub", "CLI", "gh", "チートシート"]
 draft: false
 ---
@@ -113,6 +113,13 @@ gh run list
 
 # 実行中のワークフローのログをリアルタイムで追跡する
 gh run watch
+```
+
+### GitHub Actionsの実行
+```bash
+# 実行するファイルとブランチを指定する場合
+# 前提：ファイルに workflow_dispatch が指定されていること
+gh workflow run <workflow-filename> --ref=<branch-name>
 ```
 
 ---

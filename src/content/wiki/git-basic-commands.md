@@ -2,7 +2,7 @@
 title: "Git 基本コマンドチートシート"
 description: "日常的によく使用するGitの基本コマンドのまとめと備忘録です。"
 category: "Git"
-updatedDate: 2026-06-30
+updatedDate: 2026-07-01
 tags: ["Git", "CLI", "備忘録"]
 draft: false
 ---
@@ -37,6 +37,11 @@ git add .
 ### コミットの作成
 ```bash
 git commit -m "feat: 新機能の追加"
+```
+
+### 空コミットの作成
+```bash
+git commit --allow-empty  -m "空コミット"
 ```
 
 ---
