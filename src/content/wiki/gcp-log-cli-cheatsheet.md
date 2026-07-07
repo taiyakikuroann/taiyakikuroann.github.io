@@ -1,6 +1,6 @@
 ---
-title: "gcloud log 基本コマンドチートシート"
-description: "日常的によく使用する `gcloud log` の基本コマンドのまとめと備忘録です。"
+title: "gcloud logging 基本コマンドチートシート"
+description: "日常的によく使用する `gcloud logging` の基本コマンドのまとめと備忘録です。"
 category: "GCP"
 updatedDate: 2026-07-02
 tags: ["GCP", "CLI", "備忘録"]

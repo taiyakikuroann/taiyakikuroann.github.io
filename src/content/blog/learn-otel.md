@@ -2,11 +2,11 @@
 title: "OpenTelemetry とは？"
 description: "OpenTelemetry の導入を検討してみた。"
 pubDate: 2026-07-04
-tags: ["雑記", "OTel", "Observavility"]
+tags: ["雑記", "OTel", "Observability"]
 draft: false
 ---
 
-Obsevavility やってますか？
+Observability やってますか？
 
 ## 導入検討
 
@@ -47,6 +47,6 @@ Obsevavility やってますか？
 * GCPではOTelで収集や利用する仕組みが整っているっぽい
 * 前にAWSやってた時に使っていた、X-Rayの仕組みっぽい気がする
   
-自前でコレクターの用意とか保存用のDBの用意とか可視化のGrafanaとかと用意しないといけないと思ってて敷居の高さを感じていたが、
+自前でコレクターの用意とか保存用のDBの用意とか可視化のGrafanaとかを用意しないといけないと思ってて敷居の高さを感じていたが、
 思ってたよりも簡単に導入できそうな気がしている。（このコメントがフラグにならなければ良いが笑）
 さぁ、やってみよう！
