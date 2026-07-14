@@ -2,7 +2,7 @@
 title: "OpenTelemetry とは？"
 description: "OpenTelemetry の導入を検討してみた。"
 pubDate: 2026-07-04
-tags: ["雑記", "OTel", "Observability"]
+tags: ["雑記", "OpenTelemetry", "Observability"]
 draft: false
 ---
 

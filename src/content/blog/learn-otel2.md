@@ -2,7 +2,7 @@
 title: "OpenTelemetryで複数プロジェクトのデータを一元管理する"
 description: "OpenTelemetryを実装し、複数プロジェクトから一元的にトレース・ログ・メトリクスを管理する方法について。"
 pubDate: 2026-07-08
-tags: ["雑記", "OTel", "Observability"]
+tags: ["雑記", "OpenTelemetry", "Observability"]
 draft: false
 ---
 
