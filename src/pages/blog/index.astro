@@ -33,7 +33,7 @@ const formatDate = (date: Date) => {
               </time>
               <div class="item-tags">
                 {post.data.tags.map((tag) => (
-                  <span class="badge">#{tag}</span>
+                  <a href={`/tags/${tag}`} class="badge tag-link">#{tag}</a>
                 ))}
               </div>
             </div>
@@ -105,6 +105,17 @@ const formatDate = (date: Date) => {
   .item-tags {
     display: flex;
     gap: 8px;
+  }
+
+  .tag-link {
+    text-decoration: none;
+    transition: var(--transition-smooth);
+  }
+
+  .tag-link:hover {
+    color: var(--text-primary);
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 8px rgba(160, 50, 255, 0.3);
   }
 
   .item-title {

@@ -42,7 +42,7 @@ const formatDate = (date: Date) => {
       
       <div class="post-tags">
         {post.data.tags.map((tag) => (
-          <span class="badge">#{tag}</span>
+          <a href={`/tags/${tag}`} class="badge tag-link">#{tag}</a>
         ))}
       </div>
     </header>
@@ -96,6 +96,17 @@ const formatDate = (date: Date) => {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+  }
+
+  .tag-link {
+    text-decoration: none;
+    transition: var(--transition-smooth);
+  }
+
+  .tag-link:hover {
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 8px rgba(0, 150, 255, 0.3);
   }
 
   .post-content {
