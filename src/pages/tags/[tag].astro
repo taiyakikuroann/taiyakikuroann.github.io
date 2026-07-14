@@ -28,6 +28,28 @@ export async function getStaticPaths() {
 
 const { tag, blogPosts, wikiPosts } = Astro.props;
 
+// ブログとWikiのオブジェクト構造を統一してマージし、日付順（新しい順）にソート
+const combinedPosts = [
+  ...blogPosts.map(post => ({
+    slug: post.slug,
+    title: post.data.title,
+    description: post.data.description,
+    tags: post.data.tags || [],
+    type: 'blog',
+    categoryName: 'Blog',
+    date: post.data.pubDate,
+  })),
+  ...wikiPosts.map(post => ({
+    slug: post.slug,
+    title: post.data.title,
+    description: post.data.description,
+    tags: post.data.tags || [],
+    type: 'wiki',
+    categoryName: `Wiki (${post.data.category})`,
+    date: post.data.updatedDate,
+  })),
+].sort((a, b) => b.date.valueOf() - a.date.valueOf());
+
 const formatDate = (date: Date) => {
   return date.toLocaleDateString('ja-JP', {
     year: 'numeric',
@@ -49,63 +71,34 @@ const formatDate = (date: Date) => {
         Tag: <span class="gradient-text">#{tag}</span>
       </h1>
       <p class="page-description">
-        「#{tag}」タグが紐づいた記事の一覧です。（ブログ: {blogPosts.length}件、Wiki: {wikiPosts.length}件）
+        「#{tag}」タグが紐づいた記事の一覧です。（全 {combinedPosts.length} 件）
       </p>
     </div>
 
     <div class="tag-results">
-      <!-- Blog section -->
-      {blogPosts.length > 0 && (
-        <section class="results-section">
-          <h2 class="section-title font-heading">✍️ Blog Posts</h2>
-          <div class="cards-list">
-            {blogPosts.map((post) => (
-              <div class="glass-card content-card-wrapper">
-                <a href={`/blog/${post.slug}`} class="content-card">
-                  <div class="card-meta">
-                    <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
-                  </div>
-                  <h3 class="card-title font-heading">{post.data.title}</h3>
-                  <p class="card-desc">{post.data.description}</p>
-                </a>
-                <div class="card-tags">
-                  {post.data.tags.map(t => (
-                    <a href={`/tags/${t}`} class={`card-tag ${t === tag ? 'active-tag' : ''}`}>#{t}</a>
-                  ))}
+      {combinedPosts.length > 0 ? (
+        <div class="cards-list">
+          {combinedPosts.map((post) => (
+            <div class="glass-card content-card-wrapper">
+              <a href={post.type === 'blog' ? `/blog/${post.slug}` : `/wiki/${post.slug}`} class="content-card">
+                <div class="card-meta">
+                  <span class={`type-badge ${post.type === 'blog' ? 'blog-badge' : 'wiki-badge'}`}>
+                    {post.categoryName}
+                  </span>
+                  <time datetime={post.date.toISOString()}>{formatDate(post.date)}</time>
                 </div>
+                <h3 class="card-title font-heading">{post.title}</h3>
+                <p class="card-desc">{post.description}</p>
+              </a>
+              <div class="card-tags">
+                {post.tags.map(t => (
+                  <a href={`/tags/${t}`} class={`card-tag ${t === tag ? 'active-tag' : ''}`}>#{t}</a>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <!-- Wiki section -->
-      {wikiPosts.length > 0 && (
-        <section class="results-section">
-          <h2 class="section-title font-heading">📚 Wiki Articles</h2>
-          <div class="cards-list">
-            {wikiPosts.map((wiki) => (
-              <div class="glass-card content-card-wrapper">
-                <a href={`/wiki/${wiki.slug}`} class="content-card">
-                  <div class="card-meta">
-                    <span class="wiki-category">{wiki.data.category}</span>
-                    <time datetime={wiki.data.updatedDate.toISOString()}>Update: {formatDate(wiki.data.updatedDate)}</time>
-                  </div>
-                  <h3 class="card-title font-heading">{wiki.data.title}</h3>
-                  <p class="card-desc">{wiki.data.description}</p>
-                </a>
-                <div class="card-tags">
-                  {wiki.data.tags.map(t => (
-                    <a href={`/tags/${t}`} class={`card-tag ${t === tag ? 'active-tag' : ''}`}>#{t}</a>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {blogPosts.length === 0 && wikiPosts.length === 0 && (
+            </div>
+          ))}
+        </div>
+      ) : (
         <div class="no-content">
           <p>該当する記事が見つかりませんでした。</p>
         </div>
@@ -146,22 +139,7 @@ const formatDate = (date: Date) => {
   }
 
   .tag-results {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-  }
-
-  .results-section {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .section-title {
-    font-size: 1.5rem;
-    color: var(--text-primary);
-    border-bottom: 1px solid var(--border-muted);
-    padding-bottom: 10px;
+    margin-top: 20px;
   }
 
   .cards-list {
@@ -187,7 +165,7 @@ const formatDate = (date: Date) => {
   .content-card {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     text-decoration: none;
     flex-grow: 1;
     margin-bottom: 12px;
@@ -199,6 +177,25 @@ const formatDate = (date: Date) => {
     align-items: center;
     font-size: 0.8rem;
     color: var(--text-muted);
+  }
+
+  .type-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .blog-badge {
+    background: rgba(160, 50, 255, 0.1);
+    border: 1px solid var(--accent-purple);
+    color: var(--accent-purple);
+  }
+
+  .wiki-badge {
+    background: rgba(0, 150, 255, 0.1);
+    border: 1px solid var(--accent-blue);
+    color: var(--accent-blue);
   }
 
   .card-title {
@@ -244,14 +241,6 @@ const formatDate = (date: Date) => {
   .active-tag {
     color: var(--accent-purple);
     font-weight: 700;
-  }
-
-  .wiki-category {
-    font-weight: 600;
-    color: var(--text-secondary);
-    background: var(--bg-tertiary);
-    padding: 2px 8px;
-    border-radius: 4px;
   }
 
   .no-content {
