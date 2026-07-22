@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Remove admin pages for production build
+        run: rm -f src/pages/admin.astro src/pages/api/create-post.ts
+
       - name: Build Astro Site
         run: npm run build
 
